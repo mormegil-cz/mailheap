@@ -1,0 +1,41 @@
+[
+  {
+    "filter": {
+      "from": "spammer@mail.example.com"
+    },
+    "effect": {
+      "rule": "reject"
+    }
+  },
+  {
+    "filter": {
+      "from": "otherspammer@mail.example.com"
+    },
+    "effect": {
+      "rule": "drop"
+    }
+  },
+  {
+    "filter": {
+      "to": "prefix.toomuch@mail.example.com"
+    },
+    "effect": {
+      "rule": "reject"
+    }
+  },
+  {
+    "filter": {
+      "toRegex": "prefix\\.[^@]*@mail.example.com"
+    },
+    "effect": {
+      "decision": "forwardAndDelete",
+      "address": "recipient@realmail.example.com"
+    }
+  },
+  {
+    "filter": null,
+    "effect": {
+      "rule": "reject"
+    }
+  }
+]
