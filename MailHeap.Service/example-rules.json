@@ -1,31 +1,31 @@
 [
   {
     "filter": {
-      "from": "spammer@mail.example.com"
+      "from": "spammer@mailheap.example.com"
     },
     "effect": {
-      "rule": "reject"
+      "decision": "reject"
     }
   },
   {
     "filter": {
-      "from": "otherspammer@mail.example.com"
+      "from": "otherspammer@mailheap.example.com"
     },
     "effect": {
-      "rule": "drop"
+      "decision": "drop"
     }
   },
   {
     "filter": {
-      "to": "prefix.toomuch@mail.example.com"
+      "to": "prefix.toomuch@mailheap.example.com"
     },
     "effect": {
-      "rule": "reject"
+      "decision": "reject"
     }
   },
   {
     "filter": {
-      "toRegex": "prefix\\.[^@]*@mail.example.com"
+      "toRegex": "prefix\\.[^@]*@mailheap.example.com"
     },
     "effect": {
       "decision": "forwardAndDelete",
@@ -35,7 +35,7 @@
   {
     "filter": null,
     "effect": {
-      "rule": "reject"
+      "decision": "reject"
     }
   }
 ]
