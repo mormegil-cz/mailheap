@@ -1,4 +1,5 @@
 using MailHeap.Service.Ingress;
+using MailHeap.Service.Persistence;
 
 namespace MailHeap.Service;
 
@@ -19,7 +20,7 @@ internal class Worker(
                 logger.LogError("SMTP server stopped unexpectedly");
                 break;
             }
-            await Task.Delay(5000, stoppingToken);
+            await Task.Delay(60000, stoppingToken);
         }
 
         await smtpServerTask;

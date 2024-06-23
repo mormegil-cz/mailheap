@@ -30,7 +30,7 @@ internal class SmtpServerHost(
 
         var smtpServer = new SmtpServer.SmtpServer(optionsBuilder.Build(), serviceProvider);
         smtpServer.SessionCreated += SmtpServerOnSessionCreated;
-        logger.LogInformation("Starting SMTP server");
+        logger.LogInformation("Starting SMTP server {serverName}", settings.ServerName);
         return smtpServer.StartAsync(cancellationToken);
     }
 

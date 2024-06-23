@@ -1,1 +1,3 @@
-rules.json
+/*.local.json
+/rules.json
+/messages.db

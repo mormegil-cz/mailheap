@@ -1,6 +1,7 @@
 using System.Buffers;
 using System.Net;
 using System.Text.Json;
+using MailHeap.Service.Forwarding;
 using MailHeap.Service.Helpers;
 using MailHeap.Service.Persistence;
 using MailHeap.Service.Persistence.Model;
@@ -18,7 +19,8 @@ internal class MessageStoreAdapter(
     ILogger<MessageStoreAdapter> logger,
     MailHeapSettings settings,
     IDecisionEngine decisionEngine,
-    IMailStorage storage
+    IMailStorage storage,
+    IMailProcessor mailProcessor
 ) : IMessageStore
 {
     public async Task<SmtpResponse> SaveAsync(ISessionContext context, IMessageTransaction transaction, ReadOnlySequence<byte> buffer, CancellationToken cancellationToken)
@@ -32,7 +34,8 @@ internal class MessageStoreAdapter(
 
             foreach (var recipient in transaction.To)
             {
-                if (await decisionEngine.ShouldDrop(transaction.From, recipient, parsedMessage?.From, cancellationToken))
+                var decision = await decisionEngine.DetermineDecision(transaction.From, recipient, parsedMessage?.From, cancellationToken);
+                if (decision is Decision.Drop or Decision.Reject)
                 {
                     if (logger.IsEnabled(LogLevel.Information))
                     {
@@ -44,7 +47,7 @@ internal class MessageStoreAdapter(
                 var emailMessage = new EmailMessage
                 {
                     Timestamp = DateTime.UtcNow,
-                    State = MessageState.Stored,
+                    State = InitialStateForDecision(decision),
                     EnvelopeFrom = transaction.From.MailboxToString(),
                     EnvelopeTo = recipient.MailboxToString(),
                     From = parsedMessage?.From.Select(f => f.ToString()).FirstOrDefault(),
@@ -65,10 +68,18 @@ internal class MessageStoreAdapter(
             return new SmtpResponse(SmtpReplyCode.Aborted, "Unable to store message");
         }
 
-        // TODO: Wake up processing job
+        mailProcessor.WakeUp();
 
         return SmtpResponse.Ok;
     }
+
+    private static MessageState InitialStateForDecision(Decision decision) => decision switch
+    {
+        Decision.ForwardAndDelete => MessageState.ToForwardAndDelete,
+        Decision.ForwardAndKeep => MessageState.ToForwardAndKeep,
+        Decision.Keep => MessageState.Kept,
+        _ => throw new ArgumentOutOfRangeException(nameof(decision), decision, "Unexpected decision value")
+    };
 
     private static string? SerializeParameters(IReadOnlyDictionary<string, string> transactionParameters) => transactionParameters.Count == 0 ? null : JsonSerializer.Serialize(transactionParameters);
 

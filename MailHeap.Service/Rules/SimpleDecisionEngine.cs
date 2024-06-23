@@ -35,22 +35,22 @@ public class SimpleDecisionEngine(
         {
             logger.LogTrace("Found rule {rule} for rejection of e-mail from {from} to {to}", matchingRule.Id, from.MailboxToString(), to.MailboxToString());
         }
-        return Task.FromResult(matchingRule.ShouldReject);
+        return Task.FromResult(matchingRule.Decision == Decision.Reject);
     }
 
-    public Task<bool> ShouldDrop(IMailbox envelopeFrom, IMailbox to, InternetAddressList? messageFrom, CancellationToken cancellationToken)
+    public Task<Decision> DetermineDecision(IMailbox envelopeFrom, IMailbox to, InternetAddressList? messageFrom, CancellationToken cancellationToken)
     {
         var matchingRule = rules.FirstOrDefault(rule => rule.Matches(envelopeFrom, to, messageFrom));
         if (matchingRule == null)
         {
-            if (logger.IsEnabled(LogLevel.Debug)) logger.LogDebug("No matching rule for drop test for e-mail from {from} to {to}", envelopeFrom.MailboxToString(), to.MailboxToString());
-            return Task.FromResult(false);
+            if (logger.IsEnabled(LogLevel.Warning)) logger.LogWarning("No matching rule for e-mail from {from} to {to}", envelopeFrom.MailboxToString(), to.MailboxToString());
+            return Task.FromResult(Decision.Keep);
         }
 
         if (logger.IsEnabled(LogLevel.Trace))
         {
             logger.LogTrace("Found rule {rule} for dropping e-mail from {envelopeFrom} ({fullFrom}) to {to}", matchingRule.Id, envelopeFrom.MailboxToString(), String.Join(", ", messageFrom?.Select(m => m.ToString()) ?? Array.Empty<string>()), to.MailboxToString());
         }
-        return Task.FromResult(matchingRule.ShouldDrop);
+        return Task.FromResult(matchingRule.Decision);
     }
 }

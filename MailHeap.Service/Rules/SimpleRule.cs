@@ -43,8 +43,7 @@ public class SimpleRule(
     }
 
     public string Id => id;
-    public bool ShouldReject => decision == Decision.Reject;
-    public bool ShouldDrop => decision == Decision.Drop;
+    public Decision Decision => decision;
 
     public static SimpleRule ParseFromJson(JsonObject json, string defaultId)
     {
@@ -93,13 +92,4 @@ public class SimpleRule(
             _ => throw new FormatException("Invalid decision value " + str)
         };
     }
-}
-
-public enum Decision
-{
-    Reject,
-    Drop,
-    Keep,
-    ForwardAndDelete,
-    ForwardAndKeep,
 }

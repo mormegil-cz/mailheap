@@ -6,5 +6,5 @@ namespace MailHeap.Service.Rules;
 public interface IDecisionEngine
 {
     Task<bool> ShouldReject(IMailbox from, IMailbox to, CancellationToken cancellationToken);
-    Task<bool> ShouldDrop(IMailbox envelopeFrom, IMailbox to, InternetAddressList? messageFrom, CancellationToken cancellationToken);
+    Task<Decision> DetermineDecision(IMailbox envelopeFrom, IMailbox to, InternetAddressList? messageFrom, CancellationToken cancellationToken);
 }

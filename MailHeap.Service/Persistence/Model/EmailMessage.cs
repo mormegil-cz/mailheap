@@ -5,7 +5,7 @@ namespace MailHeap.Service.Persistence.Model;
 [Table("MESSAGES")]
 public class EmailMessage
 {
-    [PrimaryKey, Identity]
+    [Column("ID"), PrimaryKey, Identity]
     public long Id { get; set; }
 
     [Column("TIMESTAMP"), NotNull]
@@ -43,6 +43,9 @@ public class EmailMessage
 
     [Column("PARAMS"), Nullable]
     public string? Parameters { get; set; }
+
+    [Column("FORWARD_TO"), Nullable]
+    public string? ForwardTo { get; set; }
 }
 
 public enum MessageState
@@ -51,4 +54,6 @@ public enum MessageState
     ToForwardAndKeep = 1,
     ToForwardAndDelete = 2,
     Kept = 3,
+    FailedForwardToDelete = 4,
+    FailedForwardToKeep = 5,
 }
