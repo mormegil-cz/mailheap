@@ -117,14 +117,16 @@ public class MailProcessor(
         var forwardTo = emailMessage.ForwardTo;
         if (forwardTo == null) throw new InvalidOperationException("Missing forwarding address");
 
-        forwardedMessage.From.Add(new MailboxAddress(null, fromAddress));
-        forwardedMessage.ResentFrom.Add(new MailboxAddress(String.Format(UiTexts.Culture, UiTexts.ForwardingFromNameFormat, fromAddress), settings.ForwardingFromAddress));
+        //forwardedMessage.From.Add(new MailboxAddress(null, fromAddress));
+        forwardedMessage.From.Add(new MailboxAddress(String.Format(UiTexts.Culture, UiTexts.ForwardingFromNameFormat, fromAddress), settings.ForwardingFromAddress));
+        // forwardedMessage.ResentFrom.Add(new MailboxAddress(String.Format(UiTexts.Culture, UiTexts.ForwardingFromNameFormat, fromAddress), settings.ForwardingFromAddress));
         forwardedMessage.ResentTo.Add(new MailboxAddress(null, forwardTo));
         forwardedMessage.To.Add(new MailboxAddress(null, emailMessage.EnvelopeTo));
         forwardedMessage.Subject = emailMessage.Subject == null ? UiTexts.DefaultForwardedSubject : UiTexts.ForwardedSubjectPrefix + emailMessage.Subject;
         forwardedMessage.ResentReplyTo.Add(new MailboxAddress(UiTexts.ReplyToName, settings.ReplyToAddress));
         // OK, so this leaks the number of processed messages; but only to the recipients, so probably OK-ish
-        forwardedMessage.ResentMessageId = emailMessage.Id + "." + MimeUtils.GenerateMessageId(settings.ServerName);
+        forwardedMessage.MessageId = emailMessage.Id + "." + MimeUtils.GenerateMessageId(settings.ServerName);
+        // forwardedMessage.ResentMessageId = emailMessage.Id + "." + MimeUtils.GenerateMessageId(settings.ServerName);
         var body = new TextPart(TextFormat.Plain)
         {
             Text = String.Format(UiTexts.Culture, UiTexts.ForwardedMessageBodyFormat, settings.ServerName, emailMessage.Timestamp, emailMessage.EnvelopeTo, emailMessage.EnvelopeFrom, emailMessage.From, emailMessage.SourceIpAddr)
