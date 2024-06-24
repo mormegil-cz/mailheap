@@ -10,13 +10,13 @@ public class MailProcessingWorker(
         while (!stoppingToken.IsCancellationRequested)
         {
             logger.LogDebug("Mail processing worker running at: {time}", DateTimeOffset.Now);
-            await mailProcessor.Wait(20000, stoppingToken);
-            if (stoppingToken.IsCancellationRequested) break;
 
             while (await mailProcessor.TryProcessMessage(stoppingToken))
             {
                 logger.LogDebug("Message processed");
             }
+
+            await mailProcessor.Wait(20000, stoppingToken);
         }
     }
 }

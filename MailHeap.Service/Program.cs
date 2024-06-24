@@ -5,13 +5,12 @@ using MailHeap.Service.Ingress;
 using MailHeap.Service.Persistence;
 using MailHeap.Service.Rules;
 using MailHeap.Service.Settings;
-using Microsoft.Extensions.Configuration.Json;
 using SmtpServer.Storage;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.local.json", true);
 builder.Services.Configure<MailHeapSettingsSection>(builder.Configuration.GetSection("MailHeap"));
-builder.Services.AddSingleton(new DataOptions().UseSQLite(builder.Configuration.GetConnectionString("dbConnection") ?? throw new InvalidOperationException("Connection string configuration missing")));
+builder.Services.AddSingleton(DbConnectionFactory.CreateDataOptions(builder.Configuration));
 builder.Services.AddSingleton<DbConnectionFactory>();
 builder.Services.AddSingleton<MailHeapSettings>();
 builder.Services.AddSingleton<SmtpServerHost>();

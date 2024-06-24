@@ -1,3 +1,4 @@
+using LinqToDB;
 using LinqToDB.Mapping;
 
 namespace MailHeap.Service.Persistence.Model;
@@ -8,8 +9,8 @@ public class EmailMessage
     [Column("ID"), PrimaryKey, Identity]
     public long Id { get; set; }
 
-    [Column("TIMESTAMP"), NotNull]
-    public DateTime Timestamp { get; set; }
+    [Column("TIMESTAMP", Configuration = ProviderName.SQLite, DataType = DataType.Double, DbType = "REAL"), NotNull]
+    public Timestamp Timestamp { get; set; }
 
     [Column("STATE"), NotNull]
     public MessageState State { get; set; }

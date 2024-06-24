@@ -46,7 +46,7 @@ internal class MessageStoreAdapter(
 
                 var emailMessage = new EmailMessage
                 {
-                    Timestamp = DateTime.UtcNow,
+                    Timestamp = new Timestamp(DateTime.UtcNow),
                     State = InitialStateForDecision(decision),
                     EnvelopeFrom = transaction.From.MailboxToString(),
                     EnvelopeTo = recipient.MailboxToString(),

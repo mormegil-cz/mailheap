@@ -72,6 +72,8 @@ public class MailProcessor(
                 MessageState.ToForwardAndKeep => MessageState.FailedForwardToKeep,
                 _ => throw new InvalidOperationException("Unexpected state")
             }, cancellationToken);
+
+            return;
         }
 
         switch (messageState)
@@ -93,8 +95,19 @@ public class MailProcessor(
     {
         var oldState = emailMessage.State;
         emailMessage.State = newState;
-        await db.UpdateAsync(emailMessage, columnFilter: (_, column) => column.ColumnName == nameof(emailMessage.State), token: cancellationToken);
-        logger.LogInformation("Switched message #{id} from {oldState} to {newState}", emailMessage.Id, oldState, newState);
+        var updateCount = await db.EmailMessages
+            .Where(m => m.Id == emailMessage.Id && m.State == oldState)
+            .Set(m => m.State, newState)
+            .UpdateAsync(cancellationToken);
+        if (updateCount == 1)
+        {
+            logger.LogInformation("Switched message #{id} from {oldState} to {newState}", emailMessage.Id, oldState, newState);
+        }
+        else
+        {
+            // D’oh! what now? Maybe throw an exception instead??
+            logger.LogError("Unexpected row count when switching message #{id} from {oldState} to {newState}: {count}", emailMessage.Id, oldState, newState, updateCount);
+        }
     }
 
     private Task ForwardMessage(EmailMessage emailMessage, CancellationToken cancellationToken)
@@ -119,7 +132,7 @@ public class MailProcessor(
         var attachedMessage = new MimePart("message", "rfc822")
         {
             Content = new MimeContent(new MemoryStream(emailMessage.Message)),
-            ContentDisposition = new ContentDisposition(ContentDisposition.Attachment) { CreationDate = emailMessage.Timestamp },
+            ContentDisposition = new ContentDisposition(ContentDisposition.Attachment) { CreationDate = emailMessage.Timestamp.Value },
             ContentTransferEncoding = ContentEncoding.Base64,
             FileName = UiTexts.ForwardedMessageFileName
         };
@@ -133,7 +146,9 @@ public class MailProcessor(
     private async Task DeleteMessage(DbConnection db, EmailMessage emailMessage, CancellationToken cancellationToken)
     {
         logger.LogInformation("Deleting message #{id}", emailMessage.Id);
-        await db.DeleteAsync(emailMessage, token: cancellationToken);
+        await db.EmailMessages
+            .Where(m => m.Id == emailMessage.Id)
+            .DeleteAsync(cancellationToken);
     }
 }
 
