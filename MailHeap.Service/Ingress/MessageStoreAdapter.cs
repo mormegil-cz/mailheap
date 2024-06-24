@@ -35,7 +35,7 @@ internal class MessageStoreAdapter(
             foreach (var recipient in transaction.To)
             {
                 var decision = await decisionEngine.DetermineDecision(transaction.From, recipient, parsedMessage?.From, cancellationToken);
-                if (decision is Decision.Drop or Decision.Reject)
+                if (decision.Decision is Decision.Drop or Decision.Reject)
                 {
                     if (logger.IsEnabled(LogLevel.Information))
                     {
@@ -47,10 +47,10 @@ internal class MessageStoreAdapter(
                 var emailMessage = new EmailMessage
                 {
                     Timestamp = new Timestamp(DateTime.UtcNow),
-                    State = InitialStateForDecision(decision),
+                    State = InitialStateForDecision(decision.Decision),
                     EnvelopeFrom = transaction.From.MailboxToString(),
                     EnvelopeTo = recipient.MailboxToString(),
-                    From = parsedMessage?.From.Select(f => f.ToString()).FirstOrDefault(),
+                    From = parsedMessage?.From.OfType<MailboxAddress>().Select(f => f.Address).FirstOrDefault(),
                     Subject = parsedMessage?.Subject,
                     SourceIpAddr = remoteEndpoint?.Address.ToString(),
                     SourcePort = remoteEndpoint?.Port,
@@ -58,6 +58,7 @@ internal class MessageStoreAdapter(
                     HelloName = context.Properties.TryGetValue(SmtpServerHost.HelloDomainOrAddress, out var helloName) ? helloName as string : null,
                     Message = messageBytes,
                     Parameters = SerializeParameters(transaction.Parameters),
+                    ForwardTo = decision is ForwardingEffect fe ? fe.ForwardToAddress : null
                 };
                 await storage.SaveMail(emailMessage, cancellationToken);
             }

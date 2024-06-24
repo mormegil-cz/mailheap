@@ -13,6 +13,8 @@ public class SimpleDecisionEngine(
 )
     : IDecisionEngine
 {
+    private static readonly RuleEffect keepDecision = new SimpleEffect(Decision.Keep);
+
     private readonly ReadOnlyCollection<IRule> rules = LoadSettings(settings.RuleFile);
 
     private static ReadOnlyCollection<IRule> LoadSettings(string settingsRuleFile) =>
@@ -35,22 +37,22 @@ public class SimpleDecisionEngine(
         {
             logger.LogTrace("Found rule {rule} for rejection of e-mail from {from} to {to}", matchingRule.Id, from.MailboxToString(), to.MailboxToString());
         }
-        return Task.FromResult(matchingRule.Decision == Decision.Reject);
+        return Task.FromResult(matchingRule.Effect.Decision == Decision.Reject);
     }
 
-    public Task<Decision> DetermineDecision(IMailbox envelopeFrom, IMailbox to, InternetAddressList? messageFrom, CancellationToken cancellationToken)
+    public Task<RuleEffect> DetermineDecision(IMailbox envelopeFrom, IMailbox to, InternetAddressList? messageFrom, CancellationToken cancellationToken)
     {
         var matchingRule = rules.FirstOrDefault(rule => rule.Matches(envelopeFrom, to, messageFrom));
         if (matchingRule == null)
         {
             if (logger.IsEnabled(LogLevel.Warning)) logger.LogWarning("No matching rule for e-mail from {from} to {to}", envelopeFrom.MailboxToString(), to.MailboxToString());
-            return Task.FromResult(Decision.Keep);
+            return Task.FromResult(keepDecision);
         }
 
         if (logger.IsEnabled(LogLevel.Trace))
         {
             logger.LogTrace("Found rule {rule} for dropping e-mail from {envelopeFrom} ({fullFrom}) to {to}", matchingRule.Id, envelopeFrom.MailboxToString(), String.Join(", ", messageFrom?.Select(m => m.ToString()) ?? Array.Empty<string>()), to.MailboxToString());
         }
-        return Task.FromResult(matchingRule.Decision);
+        return Task.FromResult(matchingRule.Effect);
     }
 }

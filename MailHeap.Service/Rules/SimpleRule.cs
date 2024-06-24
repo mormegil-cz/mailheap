@@ -8,7 +8,7 @@ namespace MailHeap.Service.Rules;
 
 public class SimpleRule(
     string id,
-    Decision decision,
+    RuleEffect effect,
     string? fromFilter,
     Regex? fromRegexFilter,
     string? toFilter,
@@ -43,13 +43,12 @@ public class SimpleRule(
     }
 
     public string Id => id;
-    public Decision Decision => decision;
+    public RuleEffect Effect => effect;
 
     public static SimpleRule ParseFromJson(JsonObject json, string defaultId)
     {
         var id = json["id"]?.GetValue<string>() ?? defaultId;
-        var effect = json["effect"]?.AsObject() ?? throw new FormatException("Invalid rule JSON");
-        var decision = ParseDecision(effect["decision"]?.GetValue<string>() ?? throw new FormatException("Invalid rule JSON"));
+        var effect = ParseEffect(json["effect"]?.AsObject() ?? throw new FormatException("Invalid rule JSON"));
 
         var filter = json["filter"]?.AsObject();
         string? fromFilter;
@@ -78,9 +77,20 @@ public class SimpleRule(
             messageFromRegexFilter = ParseRegex(filter["messageFromRegex"]?.GetValue<string>());
         }
 
-        return new SimpleRule(id, decision, fromFilter, fromRegexFilter, toFilter, toRegexFilter, messageFromFilter, messageFromRegexFilter);
+        return new SimpleRule(id, effect, fromFilter, fromRegexFilter, toFilter, toRegexFilter, messageFromFilter, messageFromRegexFilter);
 
         Regex? ParseRegex(string? str) => str == null ? null : new Regex(str, RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.NonBacktracking | RegexOptions.IgnoreCase);
+
+        RuleEffect ParseEffect(JsonObject effectJson)
+        {
+            var decision = ParseDecision(effectJson["decision"]?.GetValue<string>() ?? throw new FormatException("Invalid rule JSON"));
+            return decision switch
+            {
+                Decision.Drop or Decision.Keep or Decision.Reject => new SimpleEffect(decision),
+                Decision.ForwardAndDelete or Decision.ForwardAndKeep => new ForwardingEffect(decision, effectJson["address"]?.GetValue<string>() ?? throw new FormatException("Forwarding address required")),
+                _ => throw new FormatException("Unsupported decision value " + decision)
+            };
+        }
 
         Decision ParseDecision(string str) => str switch
         {
