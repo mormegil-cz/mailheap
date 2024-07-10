@@ -1,6 +1,9 @@
 using LinqToDB;
 using LinqToDB.Mapping;
 
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+
 namespace MailHeap.Service.Persistence.Model;
 
 [Table("MESSAGES")]
@@ -16,10 +19,10 @@ public class EmailMessage
     public MessageState State { get; set; }
 
     [Column("ENVELOPE_FROM"), NotNull]
-    public string EnvelopeFrom { get; set; }
+    public required string EnvelopeFrom { get; set; }
 
     [Column("ENVELOPE_TO"), NotNull]
-    public string EnvelopeTo { get; set; }
+    public required string EnvelopeTo { get; set; }
 
     [Column("FROM"), Nullable]
     public string? From { get; set; }
@@ -40,7 +43,7 @@ public class EmailMessage
     public string? HelloName { get; set; }
 
     [Column("MESSAGE_DATA"), NotNull]
-    public byte[] Message { get; set; }
+    public required byte[] Message { get; set; }
 
     [Column("PARAMS"), Nullable]
     public string? Parameters { get; set; }
