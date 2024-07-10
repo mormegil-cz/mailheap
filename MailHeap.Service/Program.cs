@@ -22,6 +22,11 @@ builder.Services.AddSingleton<IMailProcessor, MailProcessor>();
 builder.Services.AddSingleton<IMailSender, SmtpEmailSender>();
 builder.Services.AddHostedService<Worker>();
 builder.Services.AddHostedService<MailProcessingWorker>();
+builder.Services.AddWindowsService(options =>
+{
+    options.ServiceName = "MailHeap";
+});
+
 
 var host = builder.Build();
 host.Run();
