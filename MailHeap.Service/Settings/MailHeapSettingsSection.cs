@@ -1,8 +1,12 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace MailHeap.Service.Settings;
 
+[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class MailHeapSettingsSection
 {
     public string? ServerName { get; set; }
+    public string? ServerDisplayName { get; set; }
     public string? RecipientDomains { get; set; }
     public string? RuleFile { get; set; }
     public string? ForwardingFromAddress { get; set; }

@@ -7,6 +7,7 @@ public class MailHeapSettings(
 )
 {
     public string ServerName { get; } = GetRequiredValue(nameof(ServerName), sectionOptions.Value.ServerName);
+    public string ServerDisplayName { get; } = GetRequiredValue(nameof(ServerName), sectionOptions.Value.ServerDisplayName ?? sectionOptions.Value.ServerName);
     public IReadOnlySet<string> RecipientDomains { get; } = new HashSet<string>(GetRequiredValue(nameof(RecipientDomains), sectionOptions.Value.RecipientDomains).Split(',').Select(s => s.ToUpperInvariant()));
     public string RuleFile { get; } = GetRequiredValue(nameof(RuleFile), sectionOptions.Value.RuleFile);
     public string ForwardingFromAddress { get; } = GetRequiredValue(nameof(ForwardingFromAddress), sectionOptions.Value.ForwardingFromAddress);

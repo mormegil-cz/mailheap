@@ -125,7 +125,7 @@ public class MailProcessor(
         forwardedMessage.MessageId = emailMessage.Id + "." + MimeUtils.GenerateMessageId(settings.ServerName);
         var body = new TextPart(TextFormat.Plain)
         {
-            Text = String.Format(UiTexts.Culture, UiTexts.ForwardedMessageBodyFormat, settings.ServerName, emailMessage.Timestamp, emailMessage.EnvelopeTo, emailMessage.EnvelopeFrom, emailMessage.From, emailMessage.SourceIpAddr)
+            Text = String.Format(UiTexts.Culture, UiTexts.ForwardedMessageBodyFormat, settings.ServerDisplayName, emailMessage.Timestamp, emailMessage.EnvelopeTo, emailMessage.EnvelopeFrom, emailMessage.From, emailMessage.SourceIpAddr, emailMessage.SourcePort, emailMessage.HelloName)
         };
         var attachedMessage = new MimePart("message", "rfc822")
         {
@@ -165,7 +165,7 @@ internal static class UiTexts
                                                        This is a forwarded message from MailHeap at {0}.
 
                                                        At {1:u}, MailHeap has received a message for {2}
-                                                       from {3} (signed as {4}, received from {5}).
+                                                       from {3} (signed as {4}, received from {5}:{6}, {7}).
                                                        The received message is attached.
                                                        """;
 
