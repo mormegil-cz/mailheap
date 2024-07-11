@@ -1,5 +1,4 @@
 using MailHeap.Service.Ingress;
-using MailHeap.Service.Persistence;
 
 namespace MailHeap.Service;
 
@@ -12,16 +11,18 @@ internal class Worker(
     {
         var smtpServerTask = smtpServerHost.RunServer(stoppingToken);
 
+        logger.LogInformation("Worker starting");
         while (!stoppingToken.IsCancellationRequested)
         {
-            logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+            logger.LogDebug("Worker running");
             if (smtpServerTask.IsCompleted && !stoppingToken.IsCancellationRequested)
             {
-                logger.LogError("SMTP server stopped unexpectedly");
+                logger.Log(LogLevel.Critical, "SMTP server stopped unexpectedly");
                 break;
             }
             await Task.Delay(60000, stoppingToken);
         }
+        logger.LogInformation("Worker finishing");
 
         await smtpServerTask;
     }

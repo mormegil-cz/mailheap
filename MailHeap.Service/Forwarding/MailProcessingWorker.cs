@@ -7,9 +7,11 @@ public class MailProcessingWorker(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        logger.LogInformation("Mail processing worker starting");
+
         while (!stoppingToken.IsCancellationRequested)
         {
-            logger.LogDebug("Mail processing worker running at: {time}", DateTimeOffset.Now);
+            logger.LogDebug("Mail processing worker running");
 
             while (await mailProcessor.TryProcessMessage(stoppingToken))
             {
@@ -18,5 +20,7 @@ public class MailProcessingWorker(
 
             await mailProcessor.Wait(20000, stoppingToken);
         }
+
+        logger.LogInformation("Mail processing worker finishing");
     }
 }
