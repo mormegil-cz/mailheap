@@ -23,6 +23,7 @@ builder.Services.AddSingleton<SmtpServerHost>();
 builder.Services.AddSingleton<IMailboxFilter, MailboxFilterAdapter>();
 builder.Services.AddSingleton<IMessageStore, MessageStoreAdapter>();
 builder.Services.AddSingleton<IMailStorage, DatabaseStorage>();
+builder.Services.AddSingleton<IRuleCollection, AutoReloadingRuleCollection>();
 builder.Services.AddSingleton<IDecisionEngine, SimpleDecisionEngine>();
 builder.Services.AddSingleton<IMailProcessor, MailProcessor>();
 builder.Services.AddSingleton<IMailSender, SmtpEmailSender>();

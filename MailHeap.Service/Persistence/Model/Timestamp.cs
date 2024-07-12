@@ -1,7 +1,7 @@
 namespace MailHeap.Service.Persistence.Model;
 
 /// <summary>
-/// Wrapper for <see cref="DateTime"/> because of Sqlite’s representation fighting with Linq2db.
+/// Wrapper for <see cref="DateTime"/> because of Sqlite’s representation fighting with LinqToDb.
 /// Possibly unnecessary but it works (unlike without it, which I could not make to work).
 /// </summary>
 /// <param name="value">The represented timestamp value</param>

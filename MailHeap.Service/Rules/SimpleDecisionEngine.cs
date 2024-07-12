@@ -1,7 +1,4 @@
-using System.Collections.ObjectModel;
-using System.Text.Json.Nodes;
 using MailHeap.Service.Helpers;
-using MailHeap.Service.Settings;
 using MimeKit;
 using SmtpServer.Mail;
 
@@ -9,24 +6,15 @@ namespace MailHeap.Service.Rules;
 
 public class SimpleDecisionEngine(
     ILogger<SimpleDecisionEngine> logger,
-    MailHeapSettings settings
+    IRuleCollection ruleCollection
 )
     : IDecisionEngine
 {
     private static readonly RuleEffect keepDecision = new SimpleEffect(Decision.Keep);
 
-    private readonly ReadOnlyCollection<IRule> rules = LoadSettings(settings.RuleFile);
-
-    private static ReadOnlyCollection<IRule> LoadSettings(string settingsRuleFile) =>
-        (JsonNode.Parse(File.ReadAllBytes(settingsRuleFile)) ?? throw new FormatException("Invalid rule JSON format")).AsArray()
-        .Select(entry => entry?.AsObject() ?? throw new FormatException("Invalid rule JSON format"))
-        .Select((ruleJson, index) => SimpleRule.ParseFromJson(ruleJson, $"Rule #{index + 1}"))
-        .Cast<IRule>()
-        .ToList().AsReadOnly();
-
     public Task<bool> ShouldReject(IMailbox from, IMailbox to, CancellationToken cancellationToken)
     {
-        var matchingRule = rules.FirstOrDefault(rule => rule.Matches(from, to));
+        var matchingRule = ruleCollection.GetRules().FirstOrDefault(rule => rule.Matches(from, to));
         if (matchingRule == null)
         {
             if (logger.IsEnabled(LogLevel.Debug)) logger.LogDebug("No matching rule for rejection test for e-mail from {from} to {to}", from.MailboxToString(), to.MailboxToString());
@@ -42,7 +30,7 @@ public class SimpleDecisionEngine(
 
     public Task<RuleEffect> DetermineDecision(IMailbox envelopeFrom, IMailbox to, InternetAddressList? messageFrom, CancellationToken cancellationToken)
     {
-        var matchingRule = rules.FirstOrDefault(rule => rule.Matches(envelopeFrom, to, messageFrom));
+        var matchingRule = ruleCollection.GetRules().FirstOrDefault(rule => rule.Matches(envelopeFrom, to, messageFrom));
         if (matchingRule == null)
         {
             if (logger.IsEnabled(LogLevel.Warning)) logger.LogWarning("No matching rule for e-mail from {from} to {to}", envelopeFrom.MailboxToString(), to.MailboxToString());
