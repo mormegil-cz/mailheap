@@ -46,6 +46,10 @@ internal class SmtpServerHost(
 
     private void SmtpServerOnSessionCreated(object? sender, SessionEventArgs e)
     {
+        if (logger.IsEnabled(LogLevel.Information))
+        {
+            logger.LogInformation("New SMTP session from {Endpoint}", SmtpHelpers.GetRemoteEndpoint(e.Context, logger, settings));
+        }
         e.Context.CommandExecuting += ContextOnCommandExecuting;
     }
 

@@ -9,7 +9,6 @@ using MailHeap.Service.Rules;
 using MailHeap.Service.Settings;
 using MimeKit;
 using SmtpServer;
-using SmtpServer.Net;
 using SmtpServer.Protocol;
 using SmtpServer.Storage;
 
@@ -98,18 +97,5 @@ internal class MessageStoreAdapter(
         }
     }
 
-    private IPEndPoint? GetRemoteEndpoint(ISessionContext context)
-    {
-        if (settings.EnableProxy)
-        {
-            var proxyEndpoint = context.Properties.TryGetValue(ProxyCommand.ProxySourceEndpointKey, out var proxyEp) ? proxyEp as IPEndPoint : null;
-            if (proxyEndpoint != null) return proxyEndpoint;
-        }
-
-        var endpoint = context.Properties.TryGetValue(EndpointListener.RemoteEndPointKey, out var ep) ? ep as IPEndPoint : null;
-        if (endpoint != null) return endpoint;
-
-        logger.LogError("Remote endpoint not available");
-        return null;
-    }
+    private IPEndPoint? GetRemoteEndpoint(ISessionContext context) => SmtpHelpers.GetRemoteEndpoint(context, logger, settings);
 }
