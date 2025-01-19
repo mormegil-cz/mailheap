@@ -1,22 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>dotnet-MailHeap.Service-069606B3-AB5F-4AF3-9322-51A88C6D890B</UserSecretsId>
+        <LangVersion>default</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="linq2db" Version="5.4.1" />
-        <PackageReference Include="MailKitLite" Version="4.7.0" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.0" />
-        <PackageReference Include="MimeKitLite" Version="4.7.0" />
-        <PackageReference Include="NLog" Version="5.3.2" />
-        <PackageReference Include="NLog.Extensions.Logging" Version="5.3.11" />
+        <PackageReference Include="MailKitLite" Version="4.9.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="9.0.1" />
+        <PackageReference Include="MimeKitLite" Version="4.9.0" />
+        <PackageReference Include="NLog" Version="5.3.4" />
+        <PackageReference Include="NLog.Extensions.Logging" Version="5.3.15" />
         <PackageReference Include="SmtpServer" Version="10.0.1" />
-        <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />
+        <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
     </ItemGroup>
 
 </Project>

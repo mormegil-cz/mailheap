@@ -68,5 +68,5 @@ internal class SmtpServerHost(
         }
     }
 
-    private static X509Certificate2 LoadCertificate(string filename, string password) => new(File.ReadAllBytes(filename), password);
+    private static X509Certificate2 LoadCertificate(string filename, string password) => X509CertificateLoader.LoadPkcs12(File.ReadAllBytes(filename), password);
 }
