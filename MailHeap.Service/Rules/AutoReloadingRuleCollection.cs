@@ -5,7 +5,7 @@ namespace MailHeap.Service.Rules;
 
 public class AutoReloadingRuleCollection : IRuleCollection, IDisposable
 {
-    private readonly object reloadSync = new();
+    private readonly Lock reloadSync = new();
     private readonly ILogger<AutoReloadingRuleCollection> logger;
     private readonly FileSystemWatcher watcher;
     private readonly string ruleFilename;

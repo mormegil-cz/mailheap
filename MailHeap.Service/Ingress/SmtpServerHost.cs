@@ -1,4 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
 using MailHeap.Service.Settings;
 using SmtpServer;
 using SmtpServer.Protocol;
@@ -11,7 +10,8 @@ internal class SmtpServerHost(
     ILogger<SmtpServerHost> logger,
     MailHeapSettings settings,
     IMessageStore messageStoreAdapter,
-    IMailboxFilter mailboxFilterAdapter
+    IMailboxFilter mailboxFilterAdapter,
+    IOptionalCertificateFactory certificateFactory
 )
 {
     internal const string HelloDomainOrAddress = "SmtpServerHost:HelloDomainOrAddress";
@@ -37,10 +37,10 @@ internal class SmtpServerHost(
     private void ConfigureEndpoint(EndpointDefinitionBuilder builder)
     {
         builder.Port(settings.Port, settings.SecurePort);
-        var certificateFilename = settings.CertificateFile;
-        if (certificateFilename != null)
+
+        if (certificateFactory.IsConfigured)
         {
-            builder.Certificate(LoadCertificate(certificateFilename, settings.CertificatePassword ?? throw new InvalidOperationException("Certificate password is required when certificate is configured")));
+            builder.Certificate(certificateFactory);
         }
     }
 
@@ -67,6 +67,4 @@ internal class SmtpServerHost(
                 break;
         }
     }
-
-    private static X509Certificate2 LoadCertificate(string filename, string password) => X509CertificateLoader.LoadPkcs12(File.ReadAllBytes(filename), password);
 }

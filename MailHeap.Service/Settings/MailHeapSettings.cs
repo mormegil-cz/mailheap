@@ -18,6 +18,7 @@ public class MailHeapSettings(
     public int Port { get; } = sectionOptions.Value.Port;
     public bool SecurePort { get; } = sectionOptions.Value.SecurePort;
     public string? CertificateFile { get; } = sectionOptions.Value.CertificateFile;
+    public string? CertificateKeyFile { get; } = sectionOptions.Value.CertificateKeyFile;
     public string? CertificatePassword { get; } = sectionOptions.Value.CertificatePassword;
     public bool EnableProxy { get; } = sectionOptions.Value.EnableProxy;
     public int MaxMessageSize { get; } = sectionOptions.Value.MaxMessageSize;

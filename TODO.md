@@ -6,8 +6,6 @@ Known missing features
 - better crash tolerance (but mostly can/should be left to another layer, monitoring, etc.)
 - obviously, UI, etc.
 - reply handling instead of no-reply address
-- instead of a single static certificate, support certificate renewals:
-  - implement AutoReloadingCertificate : ICertificateFactory, which (similarly to AutoReloadingRuleCollection) watches for changes in the certificate file(s), and if change is detected, reloads the certificate, while serving the last successfully loaded X509Certificate for new sessions
 
 Upstream
 --------
